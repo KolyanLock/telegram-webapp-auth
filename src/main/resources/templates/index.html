@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+<h1>Hello User</h1>
+<h2>Raw initData:</h2>
+<pre id="rawData"></pre>
+
+<h2>User Data:</h2>
+<pre id="userData"></pre>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const rawDataElement = document.getElementById('rawData');
+        const userDataElement = document.getElementById('userData');
+        const initData = Telegram.WebApp.initData;
+
+        rawDataElement.textContent = initData || "No initData available";
+
+        if (initData) {
+            try {
+                const params = new URLSearchParams(initData);
+                const userJson = params.get('user');
+
+                if (userJson) {
+                    const user = JSON.parse(userJson);
+                    userDataElement.textContent = JSON.stringify(user, null, 2);
+                } else {
+                    userDataElement.textContent = "User data not found in initData";
+                }
+            } catch (error) {
+                userDataElement.textContent = "Error parsing user data: " + error.message;
+            }
+        }
+
+        Telegram.WebApp.ready();
+    });
+</script>
+</body>
+</html>
