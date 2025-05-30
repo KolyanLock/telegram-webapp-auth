@@ -30,13 +30,11 @@
         }
 
         try {
-            const response = await fetch('/api/auth', {
+            const response = await fetch('/api/user/register', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Telegram ${initData}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
+                    'Authorization': `Telegram ${initData}`
+                }
             });
 
             if (!response.ok) {

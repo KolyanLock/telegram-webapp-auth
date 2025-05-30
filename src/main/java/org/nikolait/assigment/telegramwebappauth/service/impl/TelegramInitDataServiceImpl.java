@@ -1,11 +1,14 @@
 package org.nikolait.assigment.telegramwebappauth.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.nikolait.assigment.telegramwebappauth.config.TelegramBotProperties;
-import org.nikolait.assigment.telegramwebappauth.service.TelegramValidationService;
+import org.nikolait.assigment.telegramwebappauth.dto.TelegramUser;
+import org.nikolait.assigment.telegramwebappauth.service.TelegramInitDataService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -20,13 +23,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TelegramValidationServiceImpl implements TelegramValidationService {
+public class TelegramInitDataServiceImpl implements TelegramInitDataService {
 
     private static final String WEB_APP_DATA = "WebAppData";
     private static final String ALGORITHM = "HmacSHA256";
     private static final String AUTH_DATE_KEY = "auth_date";
 
     private final TelegramBotProperties telegramBotProperties;
+    private final ObjectMapper objectMapper;
 
     @Override
     public boolean validateInitData(String telegramInitData) {
@@ -46,6 +50,29 @@ public class TelegramValidationServiceImpl implements TelegramValidationService 
         } catch (UnsupportedEncodingException e) {
             log.error("Failed to parse initData: {}", e.getMessage(), e);
             return false;
+        }
+    }
+
+    @Override
+    public TelegramUser parseTelegramUser(String initData) {
+        Map<String, String> paramMap = UriComponentsBuilder
+                .fromUriString("https://dummy.com/?" + initData)
+                .build()
+                .getQueryParams()
+                .toSingleValueMap();
+
+        String encodedUserJson = paramMap.get("user");
+        if (encodedUserJson == null) {
+            throw new IllegalArgumentException("Missing 'user' param");
+        }
+
+        String decodedUserJson;
+        decodedUserJson = URLDecoder.decode(encodedUserJson, StandardCharsets.UTF_8);
+
+        try {
+            return objectMapper.readValue(decodedUserJson, TelegramUser.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse Telegram user JSON", e);
         }
     }
 

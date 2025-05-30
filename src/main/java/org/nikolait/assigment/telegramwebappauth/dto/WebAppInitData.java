@@ -26,4 +26,5 @@ public class WebAppInitData {
     private String signature;
 
     private String hash;
+
 }

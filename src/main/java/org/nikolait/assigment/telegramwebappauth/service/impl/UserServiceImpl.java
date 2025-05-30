@@ -17,7 +17,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void syncWithDatabase(User user) {
+    public void createOrUpdate(User user) {
         userRepository.findById(user.getId()).ifPresentOrElse(
                 existingUser -> modelMapper.map(user, existingUser),
                 () -> userRepository.save(user)

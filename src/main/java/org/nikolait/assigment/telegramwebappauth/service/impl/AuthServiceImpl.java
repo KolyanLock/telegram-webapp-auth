@@ -3,7 +3,7 @@ package org.nikolait.assigment.telegramwebappauth.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nikolait.assigment.telegramwebappauth.service.AuthService;
-import org.nikolait.assigment.telegramwebappauth.service.TelegramValidationService;
+import org.nikolait.assigment.telegramwebappauth.service.TelegramInitDataService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -16,7 +16,7 @@ public class AuthServiceImpl implements AuthService {
 
     private static final String PREFIX = "Telegram ";
 
-    private final TelegramValidationService telegramValidationService;
+    private final TelegramInitDataService telegramInitDataService;
 
     @Override
     public void validateTelegramAuth(String authHeader) {
@@ -26,8 +26,9 @@ public class AuthServiceImpl implements AuthService {
 
         String initData = authHeader.substring(PREFIX.length());
 
-        if (!telegramValidationService.validateInitData(initData)) {
+        if (!telegramInitDataService.validateInitData(initData)) {
             throw new ResponseStatusException(UNAUTHORIZED, "Invalid Telegram initData");
         }
     }
+
 }
