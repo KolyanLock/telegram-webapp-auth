@@ -1,21 +1,27 @@
 package org.nikolait.assigment.telegramwebappauth.controller;
 
+import lombok.RequiredArgsConstructor;
+import org.nikolait.assigment.telegramwebappauth.service.impl.TelegramValidationServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.concurrent.TimeUnit;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class AuthController {
 
+    private final TelegramValidationServiceImpl telegramValidationService;
+
     @PostMapping("/auth")
-    public ResponseEntity<Void> auth(@RequestBody String initData) throws InterruptedException {
-        System.out.println("Received initData: " + initData);
-        TimeUnit.SECONDS.sleep(10);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> auth(@RequestBody String initData) {
+        if (telegramValidationService.validateInitData(initData)) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(UNAUTHORIZED).build();
     }
 }
