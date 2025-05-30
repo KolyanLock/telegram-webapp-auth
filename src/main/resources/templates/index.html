@@ -2,27 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Test</title>
+    <title>Homepage</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-<h1>Hello User</h1>
 
-<h2>Raw initData:</h2>
-<pre id="rawData"></pre>
+<h1>Our Webapp Homepage</h1>
 
-<h2>User Data:</h2>
-<pre id="userData"></pre>
+<h2>Telegram User Data:</h2>
+<pre id="telegramUserData"></pre>
+
+<h2>Our Webapp User Data:</h2>
+<pre id="ourWebAppUserData"></pre>
 
 <div id="authStatus">Checking authentication...</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
         const statusElement = document.getElementById('authStatus');
-        const userDataElement = document.getElementById('userData');
-        const rawDataElement = document.getElementById('rawData');
+        const telegramUserDataElement = document.getElementById('telegramUserData');
+        const ourWebAppUserDataElement = document.getElementById('ourWebAppUserData');
         const initData = Telegram.WebApp.initData;
-        const payload = Telegram.WebApp.initDataUnsafe;
 
         if (!initData) {
             statusElement.textContent = "No auth data available";
@@ -30,36 +30,49 @@
         }
 
         try {
-            const response = await fetch('/api/user/register', {
+            const registerResponse = await fetch('/api/user/register', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Telegram ${initData}`
                 }
             });
 
-            if (!response.ok) {
+            if (!registerResponse.ok) {
                 statusElement.textContent = "Authentication failed: Invalid token or data";
-                rawDataElement.textContent = "Authentication required";
-                userDataElement.textContent = "Authentication required";
+                telegramUserDataElement.textContent = "Authentication required";
+                ourWebAppUserDataElement.textContent = "Authentication required";
                 return;
             }
 
             statusElement.textContent = "Authentication successful";
-            rawDataElement.textContent = initData;
 
             const params = new URLSearchParams(initData);
             const userJson = params.get('user');
 
             if (userJson) {
                 const user = JSON.parse(userJson);
-                userDataElement.textContent = JSON.stringify(user, null, 2);
+                telegramUserDataElement.textContent = JSON.stringify(user, null, 2);
             } else {
-                userDataElement.textContent = "User data not found in initData";
+                telegramUserDataElement.textContent = "User data not found in initData";
             }
         } catch (error) {
             statusElement.textContent = "Error: " + error.message;
             rawDataElement.textContent = "Error occurred during authentication";
-            userDataElement.textContent = "Error occurred during authentication";
+            telegramUserDataElement.textContent = "Error occurred during authentication";
+        }
+
+        try {
+            const infoResponse = await fetch('/api/user/info', {
+                headers: {'Authorization': `Telegram ${initData}`}
+            });
+            if (!infoResponse.ok) {
+                ourWebAppUserDataElement.textContent = `Failed to load DB user: ${infoResponse.status} ${infoResponse.statusText}`;
+            } else {
+                const dbUser = await infoResponse.json();
+                ourWebAppUserDataElement.textContent = JSON.stringify(dbUser, null, 2);
+            }
+        } catch (err) {
+            ourWebAppUserDataElement.textContent = "Error fetching DB user: " + err.message;
         }
 
         Telegram.WebApp.ready();

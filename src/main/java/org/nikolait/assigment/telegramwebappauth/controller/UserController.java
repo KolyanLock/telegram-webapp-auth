@@ -5,11 +5,10 @@ import org.modelmapper.ModelMapper;
 import org.nikolait.assigment.telegramwebappauth.dto.TelegramUser;
 import org.nikolait.assigment.telegramwebappauth.entity.User;
 import org.nikolait.assigment.telegramwebappauth.service.UserService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
 @RequestMapping("/api/user")
@@ -20,12 +19,20 @@ public class UserController {
     private final ModelMapper modelMapper;
 
     @PostMapping("/register")
-    public ResponseEntity<Void> registerIfAbsent(
+    public void registerIfAbsent(
             @RequestAttribute TelegramUser telegramUser
     ) {
-        System.out.println("telegramUser: " + telegramUser);
         userService.createOrUpdate(modelMapper.map(telegramUser, User.class));
-        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/info")
+    public User getInfo(
+            @RequestAttribute TelegramUser telegramUser
+    ) {
+        return userService.getUserById(telegramUser.getId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        NOT_FOUND, "User not found: %s".formatted(telegramUser)
+                ));
     }
 
 }

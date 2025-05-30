@@ -8,6 +8,8 @@ import org.nikolait.assigment.telegramwebappauth.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -22,6 +24,11 @@ public class UserServiceImpl implements UserService {
                 existingUser -> modelMapper.map(user, existingUser),
                 () -> userRepository.save(user)
         );
+    }
+
+    @Override
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
     }
 
 }
