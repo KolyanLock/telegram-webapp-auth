@@ -13,28 +13,53 @@
 <h2>User Data:</h2>
 <pre id="userData"></pre>
 
+<div id="authStatus">Checking authentication...</div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const rawDataElement = document.getElementById('rawData');
+    document.addEventListener('DOMContentLoaded', async () => {
+        const statusElement = document.getElementById('authStatus');
         const userDataElement = document.getElementById('userData');
+        const rawDataElement = document.getElementById('rawData');
         const initData = Telegram.WebApp.initData;
 
-        rawDataElement.textContent = initData || "No initData available";
+        if (!initData) {
+            statusElement.textContent = "No auth data available";
+            return;
+        }
 
-        if (initData) {
-            try {
-                const params = new URLSearchParams(initData);
-                const userJson = params.get('user');
+        try {
+            const response = await fetch('/api/auth', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(initData)
+            });
 
-                if (userJson) {
-                    const user = JSON.parse(userJson);
-                    userDataElement.textContent = JSON.stringify(user, null, 2);
-                } else {
-                    userDataElement.textContent = "User data not found in initData";
-                }
-            } catch (error) {
-                userDataElement.textContent = "Error parsing user data: " + error.message;
+            if (!response.ok) {
+                const error = await response.json();
+                statusElement.textContent = "Authentication failed: " + (error.message || "Unknown error");
+                rawDataElement.textContent = "Authentication required";
+                userDataElement.textContent = "Authentication required";
+                return;
             }
+
+            statusElement.textContent = "Authentication successful";
+            rawDataElement.textContent = initData;
+
+            const params = new URLSearchParams(initData);
+            const userJson = params.get('user');
+
+            if (userJson) {
+                const user = JSON.parse(userJson);
+                userDataElement.textContent = JSON.stringify(user, null, 2);
+            } else {
+                userDataElement.textContent = "User data not found in initData";
+            }
+        } catch (error) {
+            statusElement.textContent = "Error: " + error.message;
+            rawDataElement.textContent = "Error occurred during authentication";
+            userDataElement.textContent = "Error occurred during authentication";
         }
 
         Telegram.WebApp.ready();
