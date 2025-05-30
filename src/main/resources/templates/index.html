@@ -7,6 +7,7 @@
 </head>
 <body>
 <h1>Hello User</h1>
+
 <h2>Raw initData:</h2>
 <pre id="rawData"></pre>
 
@@ -21,7 +22,7 @@
         const userDataElement = document.getElementById('userData');
         const rawDataElement = document.getElementById('rawData');
         const initData = Telegram.WebApp.initData;
-        // const payloadObject = Telegram.WebApp.initDataUnsafe;
+        const payload = Telegram.WebApp.initDataUnsafe;
 
         if (!initData) {
             statusElement.textContent = "No auth data available";
@@ -32,9 +33,10 @@
             const response = await fetch('/api/auth', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'text/plain',
+                    'Authorization': `Telegram ${initData}`,
+                    'Content-Type': 'application/json'
                 },
-                body: initData
+                body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
