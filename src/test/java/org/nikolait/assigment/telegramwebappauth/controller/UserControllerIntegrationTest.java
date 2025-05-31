@@ -84,7 +84,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("GET /api/user/info - not found")
+    @DisplayName("GET /api/user/info for a non-existent user - not found")
     void getInfo_notFound() throws Exception {
         String initData = initDataGenerator.generateValidInitData(TEST_TELEGRAM_USER);
 
@@ -93,5 +93,49 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(status().reason(org.hamcrest.Matchers.containsString("User not found")));
+    }
+
+    @Test
+    @DisplayName("POST /api/user/register with fake initData - unauthorized")
+    void registerIfAbsent_with_fake_initData_unauthorized() throws Exception {
+        String fakeInitData = initDataGenerator.generateFakeInitData(TEST_TELEGRAM_USER);
+
+        mockMvc.perform(post("/api/user/register")
+                        .header("Authorization", "Telegram " + fakeInitData)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("GET /api/user/info with fake initData - unauthorized")
+    void getInfo_with_fake_initData_unauthorized() throws Exception {
+        userRepository.save(TEST_USER);
+        String fakeInitData = initDataGenerator.generateFakeInitData(TEST_TELEGRAM_USER);
+        mockMvc.perform(get("/api/user/info")
+                        .header("Authorization", "Telegram " + fakeInitData)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("POST /api/user/register with expired initData - unauthorized")
+    void registerIfAbsent_with_expired_initData_unauthorized() throws Exception {
+        String fakeInitData = initDataGenerator.generateExpiredInitData(TEST_TELEGRAM_USER);
+
+        mockMvc.perform(post("/api/user/register")
+                        .header("Authorization", "Telegram " + fakeInitData)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("GET /api/user/info with expired initData - unauthorized")
+    void getInfo_with_expired_initData_unauthorized() throws Exception {
+        userRepository.save(TEST_USER);
+        String fakeInitData = initDataGenerator.generateExpiredInitData(TEST_TELEGRAM_USER);
+        mockMvc.perform(get("/api/user/info")
+                        .header("Authorization", "Telegram " + fakeInitData)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
     }
 } 

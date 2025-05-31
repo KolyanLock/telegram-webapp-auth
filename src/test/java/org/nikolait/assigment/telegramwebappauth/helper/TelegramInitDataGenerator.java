@@ -15,6 +15,8 @@ import java.util.TreeMap;
 @RequiredArgsConstructor
 public class TelegramInitDataGenerator {
 
+    private static final String FAKE_BOT_TOKEN = "1234567890:OwCUQZHseIJiqpLnluZabZwKmYzgZezOZOd";
+
     private final ObjectMapper objectMapper;
     private final TelegramBotProperties telegramBotProperties;
 
@@ -47,9 +49,83 @@ public class TelegramInitDataGenerator {
         for (var entry : data.entrySet()) {
             if (!sb.isEmpty()) sb.append("&");
             sb.append(entry.getKey()).append("=")
-              .append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
+                    .append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
         }
         sb.append("&hash=").append(hash);
         return sb.toString();
     }
+
+    public String generateFakeInitData(TelegramUser telegramUser) throws Exception {
+        // 1. Формируем значения
+        String userJson = objectMapper.writeValueAsString(telegramUser); // НЕ кодируем для data-check-string
+        long authDate = System.currentTimeMillis() / 1000;
+        String chatInstance = "-8472941990794157579";
+        String chatType = "private";
+
+        // 2. Сортированная мапа для data-check-string
+        TreeMap<String, String> data = new TreeMap<>();
+        data.put("auth_date", String.valueOf(authDate));
+        data.put("chat_instance", chatInstance);
+        data.put("chat_type", chatType);
+        data.put("user", userJson);
+
+        // 3. Собираем data-check-string (без кодирования!)
+        String dataCheckString = data.entrySet().stream()
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .reduce((a, b) -> a + "\n" + b)
+                .orElse("");
+
+        // 4. Секретный ключ и hash
+        byte[] secretKey = new HmacUtils("HmacSHA256", "WebAppData").hmac(FAKE_BOT_TOKEN);
+        String hash = new HmacUtils("HmacSHA256", secretKey).hmacHex(dataCheckString);
+
+        // 5. Формируем query string (тут значения кодируются!)
+        StringBuilder sb = new StringBuilder();
+        for (var entry : data.entrySet()) {
+            if (!sb.isEmpty()) sb.append("&");
+            sb.append(entry.getKey()).append("=")
+                    .append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
+        }
+        sb.append("&hash=").append(hash);
+        return sb.toString();
+    }
+
+    public String generateExpiredInitData(TelegramUser telegramUser) throws Exception {
+        // 1. Формируем значения
+        String userJson = objectMapper.writeValueAsString(telegramUser); // НЕ кодируем для data-check-string
+        long expiredAuthDate = System.currentTimeMillis() / 1000
+                - telegramBotProperties.getInitDataValidityMinutes() * 60L
+                - 1;
+        String chatInstance = "-8472941990794157579";
+        String chatType = "private";
+
+        // 2. Сортированная мапа для data-check-string
+        TreeMap<String, String> data = new TreeMap<>();
+        data.put("auth_date", String.valueOf(expiredAuthDate));
+        data.put("chat_instance", chatInstance);
+        data.put("chat_type", chatType);
+        data.put("user", userJson);
+
+        // 3. Собираем data-check-string (без кодирования!)
+        String dataCheckString = data.entrySet().stream()
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .reduce((a, b) -> a + "\n" + b)
+                .orElse("");
+
+        // 4. Секретный ключ и hash
+        byte[] secretKey = new HmacUtils("HmacSHA256", "WebAppData").hmac(telegramBotProperties.getApiToken());
+        String hash = new HmacUtils("HmacSHA256", secretKey).hmacHex(dataCheckString);
+
+        // 5. Формируем query string (тут значения кодируются!)
+        StringBuilder sb = new StringBuilder();
+        for (var entry : data.entrySet()) {
+            if (!sb.isEmpty()) sb.append("&");
+            sb.append(entry.getKey()).append("=")
+                    .append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
+        }
+        sb.append("&hash=").append(hash);
+        return sb.toString();
+    }
+
+
 } 
