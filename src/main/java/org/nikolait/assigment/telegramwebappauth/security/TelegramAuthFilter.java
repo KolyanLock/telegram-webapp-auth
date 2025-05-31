@@ -1,4 +1,4 @@
-package org.nikolait.assigment.telegramwebappauth.security.filter;
+package org.nikolait.assigment.telegramwebappauth.security;
 
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
@@ -50,8 +50,6 @@ public class TelegramAuthFilter extends OncePerRequestFilter {
         }
 
         String initData = authHeader.substring(PREFIX.length());
-
-        System.out.println("initData: " + initData);
 
         if (!telegramInitDataService.validateInitData(initData)) {
             response.sendError(UNAUTHORIZED.value(), "Invalid Telegram initData");
