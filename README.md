@@ -52,6 +52,6 @@
 
 - После запуска сервиса доступен actuator health по адресу:  
   <http://localhost:8080/actuator/health>
-- Доступны отдельно liveness и readiness пробы:
-  <http://localhost:8080/actuator/health/liveness>
+- Доступны отдельно liveness и readiness пробы: <br>
+  <http://localhost:8080/actuator/health/liveness> <br>
   <http://localhost:8080/actuator/health/readiness>
