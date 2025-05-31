@@ -8,7 +8,6 @@ import org.nikolait.assigment.telegramwebappauth.entity.User;
 import org.nikolait.assigment.telegramwebappauth.helper.TelegramInitDataGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,9 +23,6 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
     private static final String USERNAME = "RikaFOyashiro";
     private static final String LANGUAGE_CODE = "en";
     private static final String PHOTO_URL = "http://photo5.url";
-
-    @Autowired
-    private MockMvc mockMvc;
 
     @Autowired
     private TelegramInitDataGenerator initDataGenerator;

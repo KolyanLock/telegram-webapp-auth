@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
@@ -29,6 +30,9 @@ public abstract class BaseIntegrationTest {
             new TelegramUser(222L, "Jane", "Smith", "janesmith", "en", true, "http://photo2.url"),
             new TelegramUser(333L, "Bob", "Johnson", "bobjohnson", "en", true, "http://photo3.url")
     );
+
+    @Autowired
+    protected MockMvc mockMvc;
 
     @Autowired
     protected ModelMapper modelMapper;
