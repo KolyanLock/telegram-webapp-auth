@@ -1,6 +1,7 @@
 package org.nikolait.assigment.telegramwebappauth.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.nikolait.assigment.telegramwebappauth.entity.User;
 import org.nikolait.assigment.telegramwebappauth.repository.UserRepository;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -24,6 +26,7 @@ public class UserServiceImpl implements UserService {
                 existingUser -> modelMapper.map(user, existingUser),
                 () -> userRepository.save(user)
         );
+        log.info("{} accepted!}", user);
     }
 
     @Override
