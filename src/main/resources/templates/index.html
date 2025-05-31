@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Homepage</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <script th:src="@{/js/telegram-web-app.js}"></script>
 </head>
 <body>
 
-<h1>Our Webapp Homepage</h1>
+<h1 class="text-green-500 text-9xl font-extrabold">Our Webapp Homepage</h1>
 
 <h2>Telegram User Data:</h2>
 <pre id="telegramUserData"></pre>

@@ -135,6 +135,37 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.15.1</version>
+                <configuration>
+                    <nodeVersion>v20.12.2</nodeVersion>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-frontend</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                        <phase>generate-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>build-css</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run build:css</arguments>
+                        </configuration>
+                        <phase>generate-resources</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

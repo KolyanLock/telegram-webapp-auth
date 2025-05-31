@@ -28,7 +28,10 @@ public class TelegramAuthFilter extends OncePerRequestFilter {
 
     private static final List<PathPattern> EXCLUDED_PATTERNS = List.of(
             defaultInstance.parse("/"),
-            defaultInstance.parse("/actuator/health/**")
+            defaultInstance.parse("/actuator/health/**"),
+            defaultInstance.parse("/js/**"),
+            defaultInstance.parse("/css/**"),
+            defaultInstance.parse("/images/**")
     );
 
     private final TelegramInitDataService telegramInitDataService;
